@@ -1,4 +1,4 @@
-# Artigiani Finder (Admin)
+# Artigiani Finder (Admin View)
 
 Admin panel per gestire professionisti artigiani, città e professioni. Permette di inserire, modificare, filtrare ed eliminare i professionisti con relative professioni associate.
 
@@ -38,6 +38,7 @@ citta (1) ───< professionista >───< (N) professionista_professione >
 - Associazione di una o più professioni al professionista.
 - Filtri per professione, città, tariffa massima e disponibilità.
 - Eliminazione di un professionista (con cleanup delle associazioni).
+
 
 
 
