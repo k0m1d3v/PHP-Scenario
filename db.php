@@ -1,5 +1,4 @@
 <?php
-// Connessione al database MySQL/MariaDB tramite PDO
 $dsn = 'mysql:host=localhost;dbname=artigiani_finder;charset=utf8mb4';
 $username = 'root';
 $password = '';

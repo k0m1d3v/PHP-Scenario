@@ -24,15 +24,15 @@ $selectedProfessionIds->execute([':id' => $id]);
 $selectedProfessionIds = array_map('intval', $selectedProfessionIds->fetchAll(PDO::FETCH_COLUMN));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nome = trim($_POST['nome'] ?? '');
-    $telefono = trim($_POST['telefono'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $descrizione = trim($_POST['descrizione'] ?? '');
-    $tariffaRaw = $_POST['tariffa_oraria'] ?? '';
+    $nome = trim(isset($_POST['nome']) ? $_POST['nome'] : '');
+    $telefono = trim(isset($_POST['telefono']) ? $_POST['telefono'] : '');
+    $email = trim(isset($_POST['email']) ? $_POST['email'] : '');
+    $descrizione = trim(isset($_POST['descrizione']) ? $_POST['descrizione'] : '');
+    $tariffaRaw = isset($_POST['tariffa_oraria']) ? $_POST['tariffa_oraria'] : '';
     $tariffa = is_numeric($tariffaRaw) ? (float) $tariffaRaw : null;
     $disponibilita = isset($_POST['disponibilita']) ? 1 : 0;
     $idCitta = isset($_POST['idCitta']) ? (int) $_POST['idCitta'] : 0;
-    $selectedProfessionIds = array_map('intval', $_POST['professioni'] ?? []);
+    $selectedProfessionIds = array_map('intval', isset($_POST['professioni']) ? $_POST['professioni'] : []);
 
     if ($nome === '') {
         $errors[] = 'Il nome è obbligatorio.';
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'La tariffa oraria deve essere un numero maggiore o uguale a 0.';
     }
 
-    $cityIds = array_column($cities, 'idCitta');
+    $cityIds = array_map('intval', array_column($cities, 'idCitta'));
     if ($idCitta <= 0 || !in_array($idCitta, $cityIds, true)) {
         $errors[] = 'Seleziona una città valida.';
     }
@@ -89,15 +89,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     // Pre-popola i campi con i dati attuali
     $nome = $professionista['nome'];
-    $telefono = $professionista['telefono'] ?? '';
-    $email = $professionista['email'] ?? '';
-    $descrizione = $professionista['descrizione'] ?? '';
+    $telefono = isset($professionista['telefono']) ? $professionista['telefono'] : '';
+    $email = isset($professionista['email']) ? $professionista['email'] : '';
+    $descrizione = isset($professionista['descrizione']) ? $professionista['descrizione'] : '';
     $tariffa = $professionista['tariffa_oraria'];
     $disponibilita = $professionista['disponibilita'];
     $idCitta = $professionista['idCitta'];
 }
 
-function e(string $value): string
+function e($value)
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
@@ -135,19 +135,19 @@ function e(string $value): string
 
     <form method="post" action="">
         <label for="nome">Nome *</label>
-        <input type="text" name="nome" id="nome" required value="<?= e($nome ?? '') ?>">
+        <input type="text" name="nome" id="nome" required value="<?= e(isset($nome) ? $nome : '') ?>">
 
         <label for="telefono">Telefono</label>
-        <input type="text" name="telefono" id="telefono" value="<?= e($telefono ?? '') ?>">
+        <input type="text" name="telefono" id="telefono" value="<?= e(isset($telefono) ? $telefono : '') ?>">
 
         <label for="email">Email</label>
-        <input type="email" name="email" id="email" value="<?= e($email ?? '') ?>">
+        <input type="email" name="email" id="email" value="<?= e(isset($email) ? $email : '') ?>">
 
         <label for="descrizione">Descrizione</label>
-        <textarea name="descrizione" id="descrizione" rows="3"><?= e($descrizione ?? '') ?></textarea>
+        <textarea name="descrizione" id="descrizione" rows="3"><?= e(isset($descrizione) ? $descrizione : '') ?></textarea>
 
         <label for="tariffa_oraria">Tariffa oraria (€) *</label>
-        <input type="number" name="tariffa_oraria" id="tariffa_oraria" step="0.01" min="0" required value="<?= e((string) ($tariffa ?? '')) ?>">
+        <input type="number" name="tariffa_oraria" id="tariffa_oraria" step="0.01" min="0" required value="<?= e((string) (isset($tariffa) ? $tariffa : '')) ?>">
 
         <label><input type="checkbox" name="disponibilita" value="1" <?= !empty($disponibilita) ? 'checked' : '' ?>> Disponibile</label>
 
@@ -155,7 +155,7 @@ function e(string $value): string
         <select name="idCitta" id="idCitta" required>
             <option value="">-- Seleziona --</option>
             <?php foreach ($cities as $c): ?>
-                <option value="<?= (int) $c['idCitta'] ?>" <?= ((int) ($idCitta ?? 0) === (int) $c['idCitta']) ? 'selected' : '' ?>>
+                <option value="<?= (int) $c['idCitta'] ?>" <?= ((int) (isset($idCitta) ? $idCitta : 0) === (int) $c['idCitta']) ? 'selected' : '' ?>>
                     <?= e($c['nome']) ?> (<?= e($c['provincia']) ?>)
                 </option>
             <?php endforeach; ?>

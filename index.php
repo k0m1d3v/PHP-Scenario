@@ -10,15 +10,15 @@ $professionsStmt = $pdo->query('SELECT idProfessione, nome FROM professione ORDE
 $professions = $professionsStmt->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nome = trim($_POST['nome'] ?? '');
-    $telefono = trim($_POST['telefono'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $descrizione = trim($_POST['descrizione'] ?? '');
-    $tariffaRaw = $_POST['tariffa_oraria'] ?? '';
+    $nome = trim(isset($_POST['nome']) ? $_POST['nome'] : '');
+    $telefono = trim(isset($_POST['telefono']) ? $_POST['telefono'] : '');
+    $email = trim(isset($_POST['email']) ? $_POST['email'] : '');
+    $descrizione = trim(isset($_POST['descrizione']) ? $_POST['descrizione'] : '');
+    $tariffaRaw = isset($_POST['tariffa_oraria']) ? $_POST['tariffa_oraria'] : '';
     $tariffa = is_numeric($tariffaRaw) ? (float) $tariffaRaw : null;
     $disponibilita = isset($_POST['disponibilita']) ? 1 : 0;
     $idCitta = isset($_POST['idCitta']) ? (int) $_POST['idCitta'] : 0;
-    $selectedProfessions = array_map('intval', $_POST['professioni'] ?? []);
+    $selectedProfessions = array_map('intval', isset($_POST['professioni']) ? $_POST['professioni'] : []);
 
     if ($nome === '') {
         $errors[] = 'Il nome è obbligatorio.';
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'La tariffa oraria deve essere un numero maggiore o uguale a 0.';
     }
 
-    $cityIds = array_column($cities, 'idCitta');
+    $cityIds = array_map('intval', array_column($cities, 'idCitta'));
     if ($idCitta <= 0 || !in_array($idCitta, $cityIds, true)) {
         $errors[] = 'Seleziona una città valida.';
     }
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Filtri
 $filterProfessione = isset($_GET['professione']) ? (int) $_GET['professione'] : 0;
 $filterCitta = isset($_GET['citta']) ? (int) $_GET['citta'] : 0;
-$filterTariffaMaxRaw = $_GET['tariffa_max'] ?? '';
+$filterTariffaMaxRaw = isset($_GET['tariffa_max']) ? $_GET['tariffa_max'] : '';
 $filterTariffaMax = is_numeric($filterTariffaMaxRaw) ? (float) $filterTariffaMaxRaw : null;
 $filterDisponibili = isset($_GET['solo_disponibili']) ? 1 : 0;
 
@@ -133,7 +133,7 @@ $listStmt = $pdo->prepare($listSql);
 $listStmt->execute($params);
 $professionisti = $listStmt->fetchAll();
 
-function e(string $value): string
+function e($value)
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
@@ -179,19 +179,19 @@ function e(string $value): string
     <form method="post" action="">
         <h2>Inserisci professionista</h2>
         <label for="nome">Nome *</label>
-        <input type="text" name="nome" id="nome" required value="<?= e($_POST['nome'] ?? '') ?>">
+        <input type="text" name="nome" id="nome" required value="<?= e(isset($_POST['nome']) ? $_POST['nome'] : '') ?>">
 
         <label for="telefono">Telefono</label>
-        <input type="text" name="telefono" id="telefono" value="<?= e($_POST['telefono'] ?? '') ?>">
+        <input type="text" name="telefono" id="telefono" value="<?= e(isset($_POST['telefono']) ? $_POST['telefono'] : '') ?>">
 
         <label for="email">Email</label>
-        <input type="email" name="email" id="email" value="<?= e($_POST['email'] ?? '') ?>">
+        <input type="email" name="email" id="email" value="<?= e(isset($_POST['email']) ? $_POST['email'] : '') ?>">
 
         <label for="descrizione">Descrizione</label>
-        <textarea name="descrizione" id="descrizione" rows="3"><?= e($_POST['descrizione'] ?? '') ?></textarea>
+        <textarea name="descrizione" id="descrizione" rows="3"><?= e(isset($_POST['descrizione']) ? $_POST['descrizione'] : '') ?></textarea>
 
         <label for="tariffa_oraria">Tariffa oraria (€) *</label>
-        <input type="number" name="tariffa_oraria" id="tariffa_oraria" step="0.01" min="0" required value="<?= e($_POST['tariffa_oraria'] ?? '') ?>">
+        <input type="number" name="tariffa_oraria" id="tariffa_oraria" step="0.01" min="0" required value="<?= e(isset($_POST['tariffa_oraria']) ? $_POST['tariffa_oraria'] : '') ?>">
 
         <?php
             $defaultDisponibilita = array_key_exists('disponibilita', $_POST) ? isset($_POST['disponibilita']) : true;
@@ -212,7 +212,7 @@ function e(string $value): string
         <div class="checkbox-group">
             <?php foreach ($professions as $p): ?>
                 <label class="checkbox-item">
-                    <input type="checkbox" name="professioni[]" value="<?= (int) $p['idProfessione'] ?>" <?= in_array((int) $p['idProfessione'], array_map('intval', $_POST['professioni'] ?? []), true) ? 'checked' : '' ?>>
+                    <input type="checkbox" name="professioni[]" value="<?= (int) $p['idProfessione'] ?>" <?= in_array((int) $p['idProfessione'], array_map('intval', isset($_POST['professioni']) ? $_POST['professioni'] : []), true) ? 'checked' : '' ?>>
                     <?= e($p['nome']) ?>
                 </label>
             <?php endforeach; ?>
@@ -246,7 +246,7 @@ function e(string $value): string
 
         <div>
             <label for="tariffa_max">Tariffa max (€)</label>
-            <input type="number" name="tariffa_max" id="tariffa_max" step="0.01" min="0" value="<?= e($filterTariffaMaxRaw ?? '') ?>">
+            <input type="number" name="tariffa_max" id="tariffa_max" step="0.01" min="0" value="<?= e($filterTariffaMaxRaw) ?>">
         </div>
 
         <div style="align-self: end;">
@@ -285,7 +285,7 @@ function e(string $value): string
                         <td class="availability" style="color: <?= $prof['disponibilita'] ? '#198754' : '#c0392b' ?>;">
                             <?= $prof['disponibilita'] ? 'Sì' : 'No' ?>
                         </td>
-                        <td><?= e($prof['professioni'] ?? '') ?></td>
+                        <td><?= e(isset($prof['professioni']) ? $prof['professioni'] : '') ?></td>
                         <td>
                             <a class="btn-link" href="edit.php?id=<?= (int) $prof['idProfessionista'] ?>">Modifica</a> |
                             <a class="btn-link" href="delete.php?id=<?= (int) $prof['idProfessionista'] ?>" onclick="return confirm('Sei sicuro di voler eliminare questo professionista?');">Elimina</a>
