@@ -19,6 +19,9 @@ Admin panel per gestire professionisti artigiani, città e professioni. Permette
 	- Una `citta` ha molti `professionista`; ogni `professionista` appartiene a una sola `citta` (1:N).
 	- Un `professionista` può avere molte `professione`; una `professione` può essere associata a molti `professionista` (N:M via tabella ponte).
 
+<img width="1046" height="500" alt="image" src="https://github.com/user-attachments/assets/9429e870-b3b5-4457-b836-2c1cd2151ab4" />
+
+
 ### Diagramma (testuale)
 ```
 citta (1) ───< professionista >───< (N) professionista_professione >─── (N) professione
@@ -35,4 +38,5 @@ citta (1) ───< professionista >───< (N) professionista_professione >
 - Associazione di una o più professioni al professionista.
 - Filtri per professione, città, tariffa massima e disponibilità.
 - Eliminazione di un professionista (con cleanup delle associazioni).
+
 
